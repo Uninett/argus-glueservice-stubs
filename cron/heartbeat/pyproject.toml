@@ -1,0 +1,19 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "argus_heartbeat"
+authors = [{name = "Hanne Moa", email = "hanne.moa@sikt.no"}]
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
+dynamic = ["version", "description"]
+dependencies = ["argus-api-client"]
+
+[project.scripts]
+argus-minimalistic = "argus_heartbeat:main"
+
+[project.urls]
+Home = "https://github.com/Uninett/argus-glueservice-stubs/"
+Issues = "https://github.com/Uninett/argus-glueservice-stubs/issues/"
+Code = "https://github.com/Uninett/argus-glueservice-stubs/"
