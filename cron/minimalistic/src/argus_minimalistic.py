@@ -24,7 +24,23 @@ API_VERSION = 2
 API_TEMPLATE = f"api/v{API_VERSION}/"
 
 
-# argus API calls
+# argus API
+
+@contextmanager
+def translate_api_error():
+    try:
+        yield
+    except ErrorWithResponse as e:
+        response = e.response
+        error_msg = f"{response.status_code} {response.client_response.reason_phrase} ({response.url})"
+        if isinstance(response.body, dict):
+            # HTTP status codes that have no content
+            detail = response.body.get("detail", "")
+            error_msg += f": {detail}"
+        sys.stderr.write("f{error_msg}\n")
+        sys.stderr.flush()
+        sys.exit(1)
+
 
 def push_minimalistic_incident(client, config=None):
     incident = Incident(
@@ -33,17 +49,6 @@ def push_minimalistic_incident(client, config=None):
         end_time=STATELESS,
     )
     client.post_incident(incident)
-
-
-@contextmanager
-def translate_api_error():
-    try:
-        yield
-    except ErrorWithResponse as e:
-        response = e.response
-        sys.stderr.write(f"{response.status_code} {response.client_response.reason_phrase} ({response.url}): {response.body['detail']}\n")
-        sys.stderr.flush()
-        sys.exit(1)
 
 
 # configuration/argument parsing
