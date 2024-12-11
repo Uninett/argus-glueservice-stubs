@@ -4,6 +4,7 @@ Send a fixed stateless incident to argus
 """
 
 import argparse
+from contextlib import contextmanager
 from datetime import datetime
 import os
 import sys
@@ -11,6 +12,7 @@ from urllib.parse import urlparse
 
 from pyargus.client import Client
 from pyargus.models import Incident, STATELESS
+from simple_rest_client.exceptions import AuthError, ErrorWithResponse
 
 
 __version__ = "0.1"
@@ -31,6 +33,17 @@ def push_minimalistic_incident(client, config=None):
         end_time=STATELESS,
     )
     client.post_incident(incident)
+
+
+@contextmanager
+def translate_api_error():
+    try:
+        yield
+    except ErrorWithResponse as e:
+        response = e.response
+        sys.stderr.write(f"{response.status_code} {response.client_response.reason_phrase} ({response.url}): {response.body['detail']}\n")
+        sys.stderr.flush()
+        sys.exit(1)
 
 
 # configuration/argument parsing
@@ -56,7 +69,8 @@ def get_config(args):
 def run(args):
     config = get_config(args)
     client = Client(api_root_url=config.endpoint, token=config.token)
-    push_minimalistic_incident(client, config)
+    with translate_api_error():
+        push_minimalistic_incident(client, config)
 
 
 def main(*rawargs):
