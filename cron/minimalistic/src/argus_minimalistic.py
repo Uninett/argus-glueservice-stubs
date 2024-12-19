@@ -8,7 +8,6 @@ from contextlib import contextmanager
 from datetime import datetime
 import os
 import sys
-from urllib.parse import urlparse
 
 from pyargus.client import Client
 from pyargus.models import Incident, STATELESS
