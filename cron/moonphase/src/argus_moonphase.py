@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 from moontool import moon
 from pyargus.client import Client
 from pyargus.models import Incident
-from simple_rest_client.exceptions import ErrorWithResponse
+from simple_rest_client import exceptions
 
 
 __version__ = "0.1"
@@ -74,19 +74,33 @@ def get_moonphase(timestamp=None):
 
 
 @contextmanager
-def translate_api_error():
+def translate_api_error(context=None):
+    error_msg = ""
     try:
         yield
-    except ErrorWithResponse as e:
+    except exceptions.ErrorWithResponse as e:
         response = e.response
         error_msg = f"{response.status_code} {response.client_response.reason_phrase} ({response.url})"
         if isinstance(response.body, dict):
             # HTTP status codes that have no content
             detail = response.body.get("detail", "")
             error_msg += f": {detail}"
-        sys.stderr.write("f{error_msg}\n")
-        sys.stderr.flush()
-        sys.exit(1)
+    except exceptions.ClientConnectionError as e:
+        error_msg = f"Failed to connect: {e}"
+    except exceptions.ActionNotFound as e:
+        error_msg = f"Unknown API call: {e}"
+    except exceptions.ActionURLMatchError as e:
+        error_msg = f"Unknown API endpoint: {e}"
+
+    if not error_msg:
+        return
+
+    sys.stderr.write(error_msg + "\n")
+    if context:
+        sys.stderr.write(f"More context: {context}\n")
+    sys.stderr.flush()
+
+    sys.exit(1)
 
 
 def get_last_moonphase_incident(client):
