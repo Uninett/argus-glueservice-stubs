@@ -77,12 +77,13 @@ def translate_api_error(context=None):
 
 
 def push_heartbeat_incident(client, config=None):
+    timestamp = datetime.now().astimezone()
     tags = {
         "still_alive": _str_localized_datetime(timestamp),
     }
     incident = Incident(
         description=config.message,
-        start_time=datetime.now().astimezone(),
+        start_time=timestamp,
         end_time=STATELESS,
         tags=tags,
     )
