@@ -126,7 +126,7 @@ def make_argparser():
         "--work-duration",
         type=int,
         help="How many minutes between breaks",
-        default=15,
+        default=25,
     )
     parser.add_argument(
         "-d",
