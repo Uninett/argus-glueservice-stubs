@@ -1,0 +1,12 @@
+[Unit]
+Description=Pomodoro for argus
+
+[Service]
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 PATH
+Restart=on-failure
+Type=simple
+User=USERNAME
+
+[Install]
+WantedBy=default.target
